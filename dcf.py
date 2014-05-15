@@ -1,14 +1,14 @@
 '''
     usage: dcf.py time_series1.dat time_series2.dat 
-                  int[lag_range_low] int[lag_range_hi]
-                  int[N_lag_bins]
+                  float[lag_range_low] float[lag_range_high]
+                  int[lag_bins]
 
     A simple implementation of the discrete correlation function (DCF)
 
 '''
 
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import sys
 import time
 
@@ -72,7 +72,8 @@ def sdcf(ts1, ts2, t, dt):
 
 def gdcf(ts1, ts2, t, dt):
     h = dt/4.0
-    gkrn = lambda x: np.exp(-1.0 * np.abs(x)**2 / (2.0 * h**2)) / np.sqrt(2.0 * np.pi * h)
+    gkrn = lambda x: np.exp(-1.0 * np.abs(x)**2 / (2.0 * h**2)) \
+           / np.sqrt(2.0 * np.pi * h)
     cntrbt = gkrn(3.290527*h)
 
     dcf = np.zeros(t.shape[0])
@@ -104,44 +105,114 @@ def gdcf(ts1, ts2, t, dt):
 '''
     MAIN
 '''
-startTime = time.time()
 
-INFILE1 = sys.argv[1]
-INFILE2 = sys.argv[2]
-INFILE2P = sys.argv[3]
-LGL = float(sys.argv[4])
-LGH = float(sys.argv[5])
-N = int(sys.argv[6])
-M = 100
+import argparse
 
-print "\nTime series preparation"
-TS1, TS2 = get_timeseries(INFILE1, INFILE2)
-TS2P = np.loadtxt(INFILE2P, comments='!')
+INPUT = argparse.ArgumentParser(description='Process some integers.')
+'''
+    USER PARAMETER INPUT
+    STANDARD PARAMETERS (REQUIRED):
+        time_series1.dat - path/filename
+        time_series2.dat - path/filename
+        lag_range_low    - float
+        lag_range_high   - float
+        lag_bins         - int
 
-DT = (LGH - LGL) / float(N)
-T = np.linspace(LGL+(DT/2.0), LGH-(DT/2.0), N)
-print "Lag bin size:", DT
+    This section will fail if:
+        Users doesn't supply the required standard parameters.
+        Parameters 'lag_range_low' and 'lag_range_high' are not symmetric
+            about zero, ie: |lag_range_low| == |lag_range_high|
+        Parameter 'lag_range_low' is greater than 'lag_range_high'.
 
-DCF, DCFERR = sdcf(TS1, TS2, T, DT)
-print "Time to complete DCF:", time.time() - startTime
+    **PITFALL**
+        There is no check to make sure the user enters a sensible
+        number of lag bins. See README for more details.
+'''
 
-DCFg, DCFERRg = gdcf(TS1, TS2, T, DT)
+INPUT.add_argument('infile1', metavar='time_series1', type=file, nargs=1,
+                   help='Time Series 1')
+INPUT.add_argument('infile2', metavar='time_series2', type=file, nargs=1,
+                   help='Time Series 2')
+INPUT.add_argument('lgl', metavar='lag_range_low', type=float, nargs=1,
+                   help='Lag range low')
+INPUT.add_argument('lgh', metavar='lag_range_high', type=float, nargs=1,
+                   help='Lag range high')
+INPUT.add_argument('n', metavar='lag_bins', type=int, nargs=1,
+                   help='Number of lag bins')
+
+'''
+    USER PARAMETER INPUT
+    OPTIONAL PARAMETERS:
+        weight   = 'slot' or 'gauss'
+        polyfit  = 0, 1, 2
+        plot     = True or False
+'''
+
+INPUT.add_argument('-w', '--weight', metavar='weight', type=str, nargs=1,
+                   default='slot', choices=['slot', 'gauss'],
+                   required=False, help='Lag bin weighting scheme')
+INPUT.add_argument('-pf', '--polyfit', metavar='polyfit', type=int, nargs=1,
+                   default=0, choices=[0, 1, 2],
+                   required=False, help='Polynomial fit subtraction')
+INPUT.add_argument('-pl', '--plotshow', metavar='plotshow', type=bool, 
+                   nargs=1, default=False, required=False, help='Show plot?')
+
+OPTS = INPUT.parse_args()
+print OPTS
+
+'''
+    USER PARAMETER INPUT
+    STANDARD PARAMETERS (REQUIRED):
+        time_series1.dat - path/filename
+        time_series2.dat - path/filename
+        lag_range_low    - float
+        lag_range_high   - float
+        lag_bins         - int
+
+    This section will fail if:
+        Users doesn't supply the required standard parameters.
+        Parameters 'lag_range_low' and 'lag_range_high' are not symmetric
+            about zero, ie: |lag_range_low| == |lag_range_high|
+        Parameter 'lag_range_low' is greater than 'lag_range_high'.
+
+    **PITFALL**
+        There is no check to make sure the user enters a sensible
+        number of lag bins. See README for more details.
+'''
+
+#assert abs(float(sys.argv[3])) == abs(float(sys.argv[4])), "LAG RANGES SUPPLIED MUST BE SYMMETRIC ABOUT 0"
+#assert float(sys.argv[3]) < float(sys.argv[4]), "LAG RANGE 'LOW' MUST BE GREATER THAN LAG RANGE 'HIGH'"
+
+
+#print INFILE1, INFILE2, LGL, LGH, N, WEIGHT, POLY_FIT == 1, PLOT == True
+#print "\nTime series preparation"
+#TS1, TS2 = get_timeseries(INFILE1, INFILE2)
+#TS2P = np.loadtxt(INFILE2P, comments='!')
+
+#DT = (LGH - LGL) / float(N)
+#T = np.linspace(LGL+(DT/2.0), LGH-(DT/2.0), N)
+#print "Lag bin size:", DT
+
+#DCF, DCFERR = sdcf(TS1, TS2, T, DT)
+#print "Time to complete DCF:", time.time() - startTime
+
+#DCFg, DCFERRg = gdcf(TS1, TS2, T, DT)
 
 '''
     Plots
 '''
 
-plt.figure(0)
-plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
-plt.errorbar(T, DCFg, DCFERRg, color='r', ls='-', capsize=0)
+#plt.figure(0)
+#plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
+#plt.errorbar(T, DCFg, DCFERRg, color='r', ls='-', capsize=0)
 #plt.plot(T, MCDCF[:,0], 'k--')
 #plt.plot(T, MCDCF[:,1], 'k-.')
 #plt.plot(T, MCDCF[:,2], 'k-.')
 #plt.plot(T, MCDCF[:,3], 'k:')
 #plt.plot(T, MCDCF[:,4], 'k:')
-plt.xlim(LGL, LGH)
+#plt.xlim(LGL, LGH)
 
 #plt.figure(1)
 #plt.hist(MCDCF[:,31])
 
-plt.show()
+#plt.show()
