@@ -2,7 +2,7 @@
     A simple implementation of the discrete correlation function (DCF)
 
     Usage:
-      $ python dcf.py -h for help
+      $ python dcf.py -h for help and basic instruction
 
 '''
 
@@ -114,7 +114,7 @@ INPUT = argparse.ArgumentParser(description='DCF USER PARAMETERS')
         time_series2.dat - path/filename
         lag_range_low    - float
         lag_range_high   - float
-        lag_bins         - int
+        lag_bin_width    - float
 '''
 
 INPUT.add_argument('infile1', metavar='time_series1', type=file, nargs=1,
@@ -125,8 +125,8 @@ INPUT.add_argument('lgl', metavar='lag_range_low', type=float, nargs=1,
                    help='Lag range low')
 INPUT.add_argument('lgh', metavar='lag_range_high', type=float, nargs=1,
                    help='Lag range high')
-INPUT.add_argument('n', metavar='lag_bins', type=int, nargs=1,
-                   help='Number of lag bins')
+INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
+                   help='Width of lag bin, dt')
 
 '''
     USER PARAMETER INPUT
@@ -170,8 +170,8 @@ if OPTS.verbose[0]:
     print
     print "INPUT TIMESERIES 1:", OPTS.infile1[0]
     print "INPUT TIMESERIES 2:", OPTS.infile2[0]
-    print "LAG RANGE PROBED  :", OPTS.lgl[0], " - ", OPTS.lgh[0]
-    print "NUMBER OF BINS    :", OPTS.n[0]
+    print "LAG RANGE PROBED  :", OPTS.lgl[0], " : ", OPTS.lgh[0]
+    print "LAG BIN WIDTH     :", OPTS.dt[0]
     print
 
 '''
@@ -185,9 +185,9 @@ TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0])
     DCF STEP
 '''
 
-DT = (OPTS.lgh[0] - OPTS.lgl[0]) / float(OPTS.n[0])
-T = np.linspace(OPTS.lgl[0]+(DT/2.0), OPTS.lgh[0]-(DT/2.0), OPTS.n[0])
-print "Lag bin size:", DT
+DT = OPTS.dt[0]
+N = np.around((OPTS.lgh[0] - OPTS.lgl[0]) / float(DT))
+T = np.linspace(OPTS.lgl[0]+(DT/2.0), OPTS.lgh[0]-(DT/2.0), N)
 
 DCF, DCFERR = sdcf(TS1, TS2, T, DT)
 #print "Time to complete DCF:", time.time() - startTime
