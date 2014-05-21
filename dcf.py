@@ -13,16 +13,31 @@ import numpy as np
     Subroutines
 '''
 
-def lndtrnd(ts):
-    from scipy.optimize import curve_fit
-    lnfnc = lambda x, a, b: a*x + b
-    p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
-    ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1])
-    vrbs = 0
-    if vrbs == 1:
-        print "Linear Detrend Coefficients"
-        print "a:", p0[0]
-        print "b:", p0[1]
+def lndtrnd(ts, vrbs, plyft): 
+    if plyft == 0:
+        ts_mean = np.mean(ts[:,1])
+        ts[:,1] = ts[:,1] - ts_mean
+        if vrbs:
+            print "Mean subtraction: %.4e" %ts_mean
+    elif plyft == 1:
+        from scipy.optimize import curve_fit
+        lnfnc = lambda x, a, b: a*x + b
+        p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
+        ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1])
+        if vrbs:
+            print "Linear De-trend Coefficients"
+            print "a:", p0[0]
+            print "b:", p0[1]
+    else:
+        from scipy.optimize import curve_fit
+        lnfnc = lambda x, a, b, c: a*x**2.0 + b*x + c
+        p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
+        ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1], p0[2])
+        if vrbs:
+            print "Quadratic De-trend Coefficients"
+            print "a:", p0[0]
+            print "b:", p0[1]
+            print "c:", p0[2]
     return ts
 
 def set_unitytime(ts1, ts2):
@@ -31,12 +46,12 @@ def set_unitytime(ts1, ts2):
     ts2[:,0] = ts2[:,0] - unitytime
     return ts1, ts2
 
-def get_timeseries(infile1, infile2):
+def get_timeseries(infile1, infile2, vrbs, plyft):
     ts1 = np.loadtxt(infile1, comments='!')
     ts2 = np.loadtxt(infile2, comments='!')
     ts1, ts2 = set_unitytime(ts1, ts2)
-    #ts1 = lndtrnd(ts1)
-    #ts2 = lndtrnd(ts2)
+    ts1 = lndtrnd(ts1, vrbs, plyft)
+    ts2 = lndtrnd(ts2, vrbs, plyft)
     return ts1, ts2
 
 def sdcf(ts1, ts2, t, dt):
@@ -140,7 +155,7 @@ INPUT.add_argument('-w', '--weight', metavar='weight', type=str, nargs=1,
                    default='slot', choices=['slot', 'gauss'],
                    required=False, help='Lag bin weighting scheme')
 INPUT.add_argument('-pf', '--polyfit', metavar='polyfit', type=int, nargs=1,
-                   default=0, choices=[0, 1, 2],
+                   default=[0], choices=[0, 1, 2],
                    required=False, help='Polynomial fit subtraction')
 INPUT.add_argument('-pl', '--plotshow', metavar='plotshow', type=bool,
                    nargs=1, default=False, help='Show plot?')
@@ -161,7 +176,7 @@ OPTS = INPUT.parse_args()
         number of lag bins. See README for more details.
 '''
 
-assert abs(OPTS.lgl[0]) == abs(OPTS.lgh[0]), "INPUT ERROR - LAG RANGE"
+#assert abs(OPTS.lgl[0]) == abs(OPTS.lgh[0]), "INPUT ERROR - LAG RANGE"
 assert OPTS.lgl[0] < OPTS.lgh[0], "INPUT ERROR - LAG RANGE"
 
 if OPTS.verbose[0]:
@@ -172,14 +187,35 @@ if OPTS.verbose[0]:
     print "INPUT TIMESERIES 2:", OPTS.infile2[0]
     print "LAG RANGE PROBED  :", OPTS.lgl[0], " : ", OPTS.lgh[0]
     print "LAG BIN WIDTH     :", OPTS.dt[0]
+    print OPTS.polyfit[0]
     print
 
 '''
-    TIME SERIES PREPERATION
-    Blarg
+    TIME SERIES PREPARATION
+    This section subtracts a n'th order polynomial from both input time series
+    prior to the DCF. The user may choose:
+        0'th order polynomial - subtracting the mean or zeroing the data.
+        1'st order polynomial - subtracting a linear fit
+        2'nd order polynomial - subtracting a quadratic fit
+    The default setting is subtracting a 0'th order polynomial (the mean). This
+    simply zeros the data and doesn't change any intrinsic qualities.
+
+    **PITFALL**
+        Just because you can subtract a n'th order polynomial doesn't mean you 
+        should. The program doesn't monitor or tell you a subtraction is
+        harmful or unnecessary. If you don't know why you are subtracting a
+        1'st or 2'nd order polynomial, don't, leave the default subtraction in
+        place. Go research non-stationary time series and filtering low
+        frequency noise before trying again.
+
+    **PITFALL 2**
+        If you have subtracted your own fits from the time series, leave the
+        default setting, 0, as is. It won't change your data.
 '''
-print "\nTime series preparation"
-TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0])
+if OPTS.verbose[0]:
+    print "Time series preparation"
+TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose[0], \
+                          OPTS.polyfit[0])
 
 '''
     DCF STEP
