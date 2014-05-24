@@ -9,10 +9,14 @@
 import numpy as np
 
 '''
-    Subroutines
+    Subroutine - tsdtrnd
+      Time series detrend using the user chosen polynomial order. Subroutine
+      fits a ploynomial to the time series data and subtracts.
+
+    Requires scipy.optimize (scipy) to be installed.
 '''
 
-def lndtrnd(ts, vrbs, plyft): 
+def tsdtrnd(ts, vrbs, plyft): 
     if plyft == 0:
         ts_mean = np.mean(ts[:,1])
         ts[:,1] = ts[:,1] - ts_mean
@@ -39,19 +43,35 @@ def lndtrnd(ts, vrbs, plyft):
             print "c:", p0[2]
     return ts
 
+'''
+    Subroutine - set_unitytime
+      Simply shifts both time series so that one starts at zero.
+'''
+
 def set_unitytime(ts1, ts2):
     unitytime = min(np.min(ts1[:,0]), np.min(ts2[:,0]))
     ts1[:,0] = ts1[:,0] - unitytime
     ts2[:,0] = ts2[:,0] - unitytime
     return ts1, ts2
 
+'''
+    Subroutine - get_timeseries
+      Takes the user specified filenames and runs tsdtrnd and set_unitytime.
+      Returns the prepared time series for DCF.
+'''
+
 def get_timeseries(infile1, infile2, vrbs, plyft):
     ts1 = np.loadtxt(infile1, comments='!')
     ts2 = np.loadtxt(infile2, comments='!')
     ts1, ts2 = set_unitytime(ts1, ts2)
-    ts1 = lndtrnd(ts1, vrbs, plyft)
-    ts2 = lndtrnd(ts2, vrbs, plyft)
+    ts1 = tsdtrnd(ts1, vrbs, plyft)
+    ts2 = tsdtrnd(ts2, vrbs, plyft)
     return ts1, ts2
+
+'''
+    Subroutine - sdcf
+      DCF algorithm with slot weighting
+'''
 
 def sdcf(ts1, ts2, t, dt):
     dcf = np.zeros(t.shape[0])
@@ -80,6 +100,11 @@ def sdcf(ts1, ts2, t, dt):
         dcf[k] = np.sum(dcfs) / float(n[k])
         dcferr[k] = np.sqrt(np.sum((dcfs - dcf[k])**2)) / float(n[k] - 1)
     return dcf, dcferr
+
+'''
+    Subroutine - gdcf
+      DCF algorithm with gaussian weighting
+'''
 
 def gdcf(ts1, ts2, t, dt):
     h = dt/4.0
@@ -114,7 +139,7 @@ def gdcf(ts1, ts2, t, dt):
     return dcf, dcferr
 
 '''
-    MAIN
+    MAIN PROGRAM
 '''
 
 import argparse
@@ -123,7 +148,7 @@ INPUT = argparse.ArgumentParser(description='DCF USER PARAMETERS')
 
 '''
     USER PARAMETER INPUT
-    STANDARD PARAMETERS (REQUIRED):
+      STANDARD PARAMETERS (REQUIRED):
         time_series1.dat - path/filename
         time_series2.dat - path/filename
         lag_range_low    - float
@@ -144,7 +169,7 @@ INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
 
 '''
     USER PARAMETER INPUT
-    OPTIONAL PARAMETERS:
+      OPTIONAL PARAMETERS:
         weight   = 'slot' or 'gauss'
         polyfit  = 0, 1, 2
         plot     = True or False
@@ -166,14 +191,14 @@ OPTS = INPUT.parse_args()
 
 '''
     USER PARAMETER CHECK AND READOUT
-    This section will fail if:
+      This section will fail if:
         Parameters 'lag_range_low' and 'lag_range_high' are not symmetric
             about zero, ie: |lag_range_low| == |lag_range_high|
         Parameter 'lag_range_low' is greater than 'lag_range_high'.
 
     **PITFALL**
-        There is no check to make sure the user enters a sensible
-        number of lag bins. See README for more details.
+      There is no check to make sure the user enters a sensible
+      number of lag bins. See README for more details.
 '''
 
 #assert abs(OPTS.lgl[0]) == abs(OPTS.lgh[0]), "INPUT ERROR - LAG RANGE"
@@ -189,25 +214,25 @@ if OPTS.verbose:
 
 '''
     TIME SERIES PREPARATION
-    This section subtracts a n'th order polynomial from both input time series
-    prior to the DCF. The user may choose:
+      This section subtracts a n'th order polynomial from both input time
+      series prior to the DCF. The user may choose:
         0'th order polynomial - subtracting the mean or zeroing the data.
         1'st order polynomial - subtracting a linear fit
         2'nd order polynomial - subtracting a quadratic fit
-    The default setting is subtracting a 0'th order polynomial (the mean). This
-    simply zeros the data and doesn't change any intrinsic qualities.
+      The default setting is subtracting a 0'th order polynomial (the mean).
+      This simply zeros the data and doesn't change any intrinsic qualities.
 
     **PITFALL**
-        Just because you can subtract a n'th order polynomial doesn't mean you 
-        should. The program doesn't monitor or tell you a subtraction is
-        harmful or unnecessary. If you don't know why you are subtracting a
-        1'st or 2'nd order polynomial, don't, leave the default subtraction in
-        place. Go research non-stationary time series and filtering low
-        frequency noise before trying again.
+      Just because you can subtract a n'th order polynomial doesn't mean you 
+      should. The program doesn't monitor or tell you a subtraction is
+      harmful or unnecessary. If you don't know why you are subtracting a
+      1'st or 2'nd order polynomial, don't, leave the default subtraction in
+      place. Go research non-stationary time series and filtering low
+      frequency noise before trying again.
 
     **PITFALL 2**
-        If you have subtracted your own fits from the time series, leave the
-        default setting, 0, as is. It won't change your data.
+      If you have subtracted your own fits from the time series, leave the
+      default setting, 0, as is. It won't change your data.
 '''
 if OPTS.verbose:
     print "\nTime series preparation"
@@ -216,11 +241,11 @@ TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose, \
 
 '''
     DCF
-    This section earns the paycheck for the entire program - runs the DCF
-    algorithm. The user main choose the rectangular 'slot' weighting or 
-    the gaussian 'gauss' weighting. See README for details on pair weighting.
+      This section earns the paycheck for the entire program - runs the DCF
+      algorithm. The user main choose the rectangular 'slot' weighting or 
+      the gaussian 'gauss' weighting. See README for details on pair weighting.
 
-    The regular weighting scheme is the 'slot' and also default. If you are
+    The regular weighting scheme is 'slot' and also default. If you are
     unsure why you might pick 'gauss' - don't.
 '''
 
@@ -242,10 +267,10 @@ if OPTS.verbose:
 
 '''
     PLOT RESULTS
-    No brainer - plots the results if the user wishes with -pl=True on the
-    command line.
+      No brainer - plots the results. If the user wishes to suppress the plot
+      one should use the -np or --no-plot flag on the command line.
 
-    For plot to function the python module matplotlib must be installed.
+    Requires python module matplotlib.
 '''
 
 if OPTS.noplot:
