@@ -7,7 +7,6 @@
 '''
 
 import numpy as np
-#import time
 
 '''
     Subroutines
@@ -149,18 +148,19 @@ INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
         weight   = 'slot' or 'gauss'
         polyfit  = 0, 1, 2
         plot     = True or False
+        verbose  = True or False
 '''
 
 INPUT.add_argument('-w', '--weight', metavar='weight', type=str, nargs=1,
-                   default='slot', choices=['slot', 'gauss'],
+                   default=['slot'], choices=['slot', 'gauss'],
                    required=False, help='Lag bin weighting scheme')
-INPUT.add_argument('-pf', '--polyfit', metavar='polyfit', type=int, nargs=1,
+INPUT.add_argument('-p', '--polyfit', metavar='polyfit', type=int, nargs=1,
                    default=[0], choices=[0, 1, 2],
                    required=False, help='Polynomial fit subtraction')
-INPUT.add_argument('-pl', '--plotshow', metavar='plotshow', type=bool,
-                   nargs=1, default=False, help='Show plot?')
-INPUT.add_argument('-v', '--verbose', metavar='verbose', type=bool,
-                   nargs=1, default=False, help='Show all steps')
+INPUT.add_argument('-np', '--no-plot', dest='noplot', action='store_false',
+                   help='Show plot?')
+INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true', 
+                   help='Show all steps')
 
 OPTS = INPUT.parse_args()
 
@@ -179,16 +179,13 @@ OPTS = INPUT.parse_args()
 #assert abs(OPTS.lgl[0]) == abs(OPTS.lgh[0]), "INPUT ERROR - LAG RANGE"
 assert OPTS.lgl[0] < OPTS.lgh[0], "INPUT ERROR - LAG RANGE"
 
-if OPTS.verbose[0]:
-    print
-    print "PYTHON SCRIPT: dcf"
+if OPTS.verbose:
+    print "\nPYTHON SCRIPT: dcf"
     print
     print "INPUT TIMESERIES 1:", OPTS.infile1[0]
     print "INPUT TIMESERIES 2:", OPTS.infile2[0]
     print "LAG RANGE PROBED  :", OPTS.lgl[0], " : ", OPTS.lgh[0]
     print "LAG BIN WIDTH     :", OPTS.dt[0]
-    print OPTS.polyfit[0]
-    print
 
 '''
     TIME SERIES PREPARATION
@@ -212,31 +209,48 @@ if OPTS.verbose[0]:
         If you have subtracted your own fits from the time series, leave the
         default setting, 0, as is. It won't change your data.
 '''
-if OPTS.verbose[0]:
-    print "Time series preparation"
-TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose[0], \
+if OPTS.verbose:
+    print "\nTime series preparation"
+TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose, \
                           OPTS.polyfit[0])
 
 '''
-    DCF STEP
+    DCF
+    This section earns the paycheck for the entire program - runs the DCF
+    algorithm. The user main choose the rectangular 'slot' weighting or 
+    the gaussian 'gauss' weighting. See README for details on pair weighting.
+
+    The regular weighting scheme is the 'slot' and also default. If you are
+    unsure why you might pick 'gauss' - don't.
 '''
 
 DT = OPTS.dt[0]
 N = np.around((OPTS.lgh[0] - OPTS.lgl[0]) / float(DT))
 T = np.linspace(OPTS.lgl[0]+(DT/2.0), OPTS.lgh[0]-(DT/2.0), N)
 
-DCF, DCFERR = sdcf(TS1, TS2, T, DT)
-#print "Time to complete DCF:", time.time() - startTime
+if OPTS.weight[0] == 'slot':
+    if OPTS.verbose:
+        print "\nDCF INITIATED USING SLOT WEIGHTING"
+    DCF, DCFERR = sdcf(TS1, TS2, T, DT)
+else:
+    if OPTS.verbose:
+        print "\nDCF INITIATED USING GAUSSIAN WEIGHTING"
+    DCF, DCFERR = gdcf(TS1, TS2, T, DT)
 
-#DCFg, DCFERRg = gdcf(TS1, TS2, T, DT)
+if OPTS.verbose:
+    print "DCF COMPLETE"
 
 '''
     PLOT RESULTS
+    No brainer - plots the results if the user wishes with -pl=True on the
+    command line.
+
+    For plot to function the python module matplotlib must be installed.
 '''
 
-if OPTS.plotshow[0]:
+if OPTS.noplot:
     import matplotlib.pyplot as plt
     plt.figure(0)
-    plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
+    plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0) 
     plt.xlim(OPTS.lgl[0], OPTS.lgh[0])
     plt.show()
