@@ -196,14 +196,16 @@ INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
         verbose  = True or False
 '''
 
-INPUT.add_argument('-w', '--weight', metavar='weight', type=str, nargs=1,
+INPUT.add_argument('-w', dest='weight', type=str, nargs=1,
                    default=['slot'], choices=['slot', 'gauss'],
                    required=False, help='Lag bin weighting scheme')
-INPUT.add_argument('-p', '--polyfit', metavar='polyfit', type=int, nargs=1,
+INPUT.add_argument('-p', dest='polyfit', type=int, nargs=1,
                    default=[0], choices=[0, 1, 2],
                    required=False, help='Polynomial fit subtraction')
 INPUT.add_argument('-np', '--no-plot', dest='noplot', action='store_false',
-                   help='Show plot?')
+                   help='Do not produce plot')
+INPUT.add_argument('-o', '--output', dest='output', action='store_true',
+                   help='Write output file')
 INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                    help='Show all steps')
 
@@ -284,6 +286,10 @@ else:
 
 if OPTS.verbose:
     print "DCF COMPLETE"
+
+if OPTS.output:
+    print "Writing DCF out file <dcf_output.dat>"
+    np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)),fmt="%.6f")
 
 '''
     PLOT RESULTS
