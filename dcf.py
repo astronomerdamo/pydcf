@@ -16,7 +16,7 @@ import numpy as np
     Requires scipy.optimize (scipy) to be installed.
 '''
 
-def tsdtrnd(ts, vrbs, plyft): 
+def tsdtrnd(ts, vrbs, plyft):
     if plyft == 0:
         ts_mean = np.mean(ts[:,1])
         ts[:,1] = ts[:,1] - ts_mean
@@ -55,14 +55,34 @@ def set_unitytime(ts1, ts2):
     return ts1, ts2
 
 '''
+    Subroutine - chck_tserr
+      Makes sure user has entered a properly formatted ts file.
+      Checks to see if input time series has a measurement error column - third
+      column of input file.
+'''
+
+def chck_tserr(ts):
+    assert ((ts.shape[1] == 2) or (ts.shape[1] == 3)), "TS SHAPE ERROR"
+    if ts.shape[1] == 2:
+        ts_fill = np.zeros((ts.shape[0], 3))
+        ts_fill[:,0:2] = ts[:,0:2]
+        return ts_fill
+    else:
+        return ts
+
+'''
     Subroutine - get_timeseries
       Takes the user specified filenames and runs tsdtrnd and set_unitytime.
       Returns the prepared time series for DCF.
 '''
 
 def get_timeseries(infile1, infile2, vrbs, plyft):
-    ts1 = np.loadtxt(infile1, comments='!')
-    ts2 = np.loadtxt(infile2, comments='!')
+    ts1_in = np.loadtxt(infile1)
+    ts2_in = np.loadtxt(infile2)
+
+    ts1 = chck_tserr(ts1_in)
+    ts2 = chck_tserr(ts2_in)
+
     ts1, ts2 = set_unitytime(ts1, ts2)
     ts1 = tsdtrnd(ts1, vrbs, plyft)
     ts2 = tsdtrnd(ts2, vrbs, plyft)
@@ -86,7 +106,7 @@ def sdcf(ts1, ts2, t, dt):
     for k in range(t.shape[0]):
         tlo = t[k] - dt/2.0
         thi = t[k] + dt/2.0
-        ts1idx, ts2idx = np.where((dst <= thi) & (dst >= tlo))
+        ts1idx, ts2idx = np.where((dst < thi) & (dst > tlo))
 
         mts2 = np.mean(ts2[ts2idx,1])
         mts1 = np.mean(ts1[ts1idx,1])
@@ -184,7 +204,7 @@ INPUT.add_argument('-p', '--polyfit', metavar='polyfit', type=int, nargs=1,
                    required=False, help='Polynomial fit subtraction')
 INPUT.add_argument('-np', '--no-plot', dest='noplot', action='store_false',
                    help='Show plot?')
-INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true', 
+INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                    help='Show all steps')
 
 OPTS = INPUT.parse_args()
@@ -223,7 +243,7 @@ if OPTS.verbose:
       This simply zeros the data and doesn't change any intrinsic qualities.
 
     **PITFALL**
-      Just because you can subtract a n'th order polynomial doesn't mean you 
+      Just because you can subtract a n'th order polynomial doesn't mean you
       should. The program doesn't monitor or tell you a subtraction is
       harmful or unnecessary. If you don't know why you are subtracting a
       1'st or 2'nd order polynomial, don't, leave the default subtraction in
@@ -242,7 +262,7 @@ TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose, \
 '''
     DCF
       This section earns the paycheck for the entire program - runs the DCF
-      algorithm. The user main choose the rectangular 'slot' weighting or 
+      algorithm. The user main choose the rectangular 'slot' weighting or
       the gaussian 'gauss' weighting. See README for details on pair weighting.
 
     The regular weighting scheme is 'slot' and also default. If you are
@@ -276,6 +296,6 @@ if OPTS.verbose:
 if OPTS.noplot:
     import matplotlib.pyplot as plt
     plt.figure(0)
-    plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0) 
+    plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
     plt.xlim(OPTS.lgl[0], OPTS.lgh[0])
     plt.show()
