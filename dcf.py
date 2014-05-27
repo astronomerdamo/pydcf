@@ -77,8 +77,8 @@ def chck_tserr(ts):
 '''
 
 def get_timeseries(infile1, infile2, vrbs, plyft):
-    ts1_in = np.loadtxt(infile1)
-    ts2_in = np.loadtxt(infile2)
+    ts1_in = np.loadtxt(infile1, comments='#')
+    ts2_in = np.loadtxt(infile2, comments='#')
 
     ts1 = chck_tserr(ts1_in)
     ts2 = chck_tserr(ts2_in)
@@ -289,7 +289,7 @@ if OPTS.verbose:
 
 if OPTS.output:
     print "Writing DCF out file <dcf_output.dat>"
-    np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)),fmt="%.6f")
+    np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)), fmt="%.6f")
 
 '''
     PLOT RESULTS
