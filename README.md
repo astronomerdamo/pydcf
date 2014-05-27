@@ -66,3 +66,7 @@ $ python dcf.py example/ts1.dat example/ts2.dat -200 200 3.5 -v -p=1 -o
 `
 
 This spits out a bunch of information, subtracts a linear fit from the input data and writes 'dcf_output.dat' in the current working directory.
+
+##Reference
+
+Source Paper: [Edelson and Krolik, 1988](http://articles.adsabs.harvard.edu/full/1988ApJ...333..646E)
