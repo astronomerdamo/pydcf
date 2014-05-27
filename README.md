@@ -16,7 +16,7 @@ The Discrete Correlation Function (DCF) was developed by Edelson and Krolik, 198
 ##Installation
 
 `
-$ git clone this_repo
+$ git clone https://github.com/astronomerdamo/pydcf.git
 `
 
 ##Usage
@@ -35,6 +35,17 @@ When calling dcf.py you **must** specify five pieces of information on the comma
 * lag_range_high : high end of the range to be explored
 * lag_bin_width : width of lag bin, dt
 
+The choice of lag range is really up to you, the only thing dcf.py requires is that lag_range_low is less than lag_range_high. Specify the lag range in the same units as your data, for example if you have a time series which has units of seconds the then use seconds for the lag range.
+
+The choice for lag bin width is more subtle. It's worth mentioning that the DCF doesn't interpolate your data - it interpolates the correlation coefficient according to how you tune the bin width. However, this does not mean you should choose the finest bin resolution you can. If resolution is finer than the average resolution of your data the program breaks. Choose a bin width that is too coarse and you may miss important details.
+
+####General Guidelines for Choosing Bin Width
+
+* Start with a larger bin size and work down to smaller scales as opposed to small first.
+* Never choose a bin width below the average time resolution of your data - the program breaks.
+* Good starting spot might be ~10 x average time resolution of your data.
+* Consider bin width on a case by case basis.
+
 ###Additional Settings
 
 Optional arguments may be passed to dcf.py:
@@ -45,11 +56,13 @@ Optional arguments may be passed to dcf.py:
 * -o --output : By default dcf.py does not write any information to file. If you would like a plain text, space delimited output file include this flag. Spits out 'dcf_output.dat' in the current working directory.
 * -v --verbose : By default dcf.py operates silently, if you are curious or a control freak use this flag.
 
-I wish I didn't have to say this but if you choose to run dcf.py and the only optional flag you raise is '--no-plot', the program will start and finish without you, the user, seeing anything at all.
+Obviously, if you choose to run dcf.py and the only optional flag you raise is '--no-plot', the program will start and finish without you, the user, seeing anything at all or knowing that anything had happened.
 
 ##Example
 
-Included in this repo is example data, example/ts1.dat and example/ts2.dat. It's supposed to represent realistic data you might encounter. Both time series are taken from mysterious power law processes. You've told one of your grad students to take readings every 6 hours for a year - big mistake. Not only have they failed taking readings exactly every 6 hours, they've taken the weekend off and they disappeared for two weeks in the summer leaving a massive gap. The resulting data is unevenly sampled on short timescales, has short term small gaps and a single large long-term gap.
+Included in this repo is example data, example/ts1.dat and example/ts2.dat. It's supposed to represent realistic data you might encounter. Let's say, both time series are taken from mysterious power law processes. You've told one of your grad students to take readings every 6 hours for a year - big mistake. Not only have they failed taking readings exactly every 6 hours, it seems like they've taken the weekend off and they disappeared for two weeks in the summer leaving a massive gap. The resulting data is unevenly sampled, has regular short term gaps and a single large long-term gap.
+
+In this case you might be able to interpolate the data to correct for uneven sampling, however, that becomes problematic for the regular short term gaps and downright negligent for the large gap. This is an example of commonly encountered data where a CCF, interpolated CCF or even computing a cross spectrum using a FFT or DFT will fail. Luckily the DCF can handle this.
 
 To search for correlation using dcf.py
 
