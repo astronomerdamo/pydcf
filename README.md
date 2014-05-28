@@ -72,6 +72,8 @@ $ python dcf.py example/ts1.dat example/ts2.dat -200 200 3.5
 
 This command attempts to correlate ts1.dat and ts2.dat over a time range of +/- 200 days with a bin width of 3.5 days. Try it. See that peak at +42 days, that's a correlation.
 
+**The reported correlation relates to the first time series. That is, how the first time series should be shifted to match the second, ie: ts2 = ts1 - correlation. Positive correlation is ts1 *leading* ts2, negative correlation is ts1 *lagging* ts2.**
+
 Want more information? Maybe there is a linear trend in the data you want to get rid of and you'd like an output file as well:
 
 `
