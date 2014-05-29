@@ -35,11 +35,11 @@ When calling dcf.py you **must** specify five pieces of information on the comma
 * lag_range_high : high end of the range to be explored
 * lag_bin_width : width of lag bin, dt
 
+**Note:** The input time series files must be a Nx2 or Nx3, space delimited file. That is, N rows with 2 or 3 columns with spaces or tabs separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
+
 The choice of lag range is really up to you, the only thing dcf.py requires is that lag_range_low is less than lag_range_high. Specify the lag range in the same units as your data, for example if you have a time series which has units of seconds the then use seconds for the lag range.
 
 The choice for lag bin width is more subtle. It's worth mentioning that the DCF doesn't interpolate your data - it interpolates the correlation coefficient according to how you tune the bin width. However, this does not mean you should choose the finest bin resolution you can. If resolution is finer than the average resolution of your data the program breaks. Choose a bin width that is too coarse and you may miss important details.
-
-**Note:** The input time series files must be a Nx2 or Nx3, space delimited file. That is, N rows with 2 or 3 columns with spaces or tabs separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
 
 ####General Guidelines for Choosing Bin Width
 
