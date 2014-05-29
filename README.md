@@ -39,6 +39,8 @@ The choice of lag range is really up to you, the only thing dcf.py requires is t
 
 The choice for lag bin width is more subtle. It's worth mentioning that the DCF doesn't interpolate your data - it interpolates the correlation coefficient according to how you tune the bin width. However, this does not mean you should choose the finest bin resolution you can. If resolution is finer than the average resolution of your data the program breaks. Choose a bin width that is too coarse and you may miss important details.
 
+**Note:** The input time series files must be a Nx2 or Nx3, space delimited file. That is, N rows with 2 or 3 columns with spaces or tabs separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
+
 ####General Guidelines for Choosing Bin Width
 
 * Start with a larger bin size and work down to smaller scales as opposed to small first.
@@ -53,7 +55,7 @@ Optional arguments may be passed to dcf.py:
 * -w=[slot, gauss] : corresponds to the weighting of the matching pairs. Default behaviour is 'slot'.
 * -p=[0,1,2] : the order of the polynomial to be fit and subtracted from the time series. Default is '0'.
 * -np --no-plot : By default dcf.py plots the results in a matplotlib.pyplot window, disable this by including flag.
-* -o --output : By default dcf.py does not write any information to file. If you would like a plain text, space delimited output file include this flag. Spits out 'dcf_output.dat' in the current working directory.
+* -o --output : By default dcf.py does not write any information to file. If you would like a plain text, single space delimited output file include this flag. Spits out 'dcf_output.dat' in the current working directory.
 * -v --verbose : By default dcf.py operates silently, if you are curious or a control freak use this flag.
 
 Obviously, if you choose to run dcf.py and the only optional flag you raise is '--no-plot', the program will start and finish without you, the user, seeing anything at all or knowing that anything had happened.
