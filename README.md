@@ -7,8 +7,6 @@
 * Scipy
 * Matplotlib
 
-*Python 3 version coming shortly*
-
 ##Introduction
 
 The Discrete Correlation Function (DCF) was developed by Edelson and Krolik, 1988, ApJ, 333, 646 for use on unevenly sampled and/or gapped data. Traditional timing analysis, ie: CCF, requires that a time series is sampled evenly in the time domain. In many real world applications obtaining perfectly sampled data may be difficult [read: damn near impossible], hence the need for a timing analysis tool designed specifically for such cases.
