@@ -2,7 +2,7 @@
 
 ##Requirements
 
-* Python 2.7
+* >Python 2.6
 * Numpy
 * Scipy
 * Matplotlib
@@ -33,7 +33,7 @@ When calling dcf.py you **must** specify five pieces of information on the comma
 * lag_range_high : high end of the range to be explored
 * lag_bin_width : width of lag bin, dt
 
-**Note:** The input time series files must be a Nx2 or Nx3, space delimited file. That is, N rows with 2 or 3 columns with spaces or tabs separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
+**Note:** The input time series files must be a Nx2 or Nx3, comma delimited (.csv) file. That is, N rows with 2 or 3 columns with spaces or tabs separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
 
 The choice of lag range is really up to you, the only thing dcf.py requires is that lag_range_low is less than lag_range_high. Specify the lag range in the same units as your data, for example if you have a time series which has units of seconds the then use seconds for the lag range.
 
@@ -42,8 +42,8 @@ The choice for lag bin width is more subtle. It's worth mentioning that the DCF 
 ####General Guidelines for Choosing Bin Width
 
 * Start with a larger bin size and work down to smaller scales as opposed to small first.
-* Never choose a bin width below the average time resolution of your data - the program breaks.
-* Good starting spot might be ~10 x average time resolution of your data.
+* Never choose a bin width below the average time resolution of your data - I haven't implemented a check for this yet so it's on you.
+* Good starting spot might be ~ 10-15 x average time resolution of your data.
 * Consider bin width on a case by case basis.
 
 ###Additional Settings
@@ -53,7 +53,7 @@ Optional arguments may be passed to dcf.py:
 * -w=[slot, gauss] : corresponds to the weighting of the matching pairs. Default behaviour is 'slot'.
 * -p=[0,1,2] : the order of the polynomial to be fit and subtracted from the time series. Default is '0'.
 * -np --no-plot : By default dcf.py plots the results in a matplotlib.pyplot window, disable this by including flag.
-* -o --output : By default dcf.py does not write any information to file. If you would like a plain text, single space delimited output file include this flag. Spits out 'dcf_output.dat' in the current working directory.
+* -o --output : By default dcf.py does not write any information to file. If you would like a plain text, single comma delimited output file include this flag. Spits out 'dcf_output.csv' in the current working directory.
 * -v --verbose : By default dcf.py operates silently, if you are curious or a control freak use this flag.
 
 Obviously, if you choose to run dcf.py and the only optional flag you raise is '--no-plot', the program will start and finish without you, the user, seeing anything at all or knowing that anything had happened.
@@ -80,7 +80,7 @@ Want more information? Maybe there is a linear trend in the data you want to get
 $ python dcf.py example/ts1.dat example/ts2.dat -200 200 3.5 -v -p=1 -o
 `
 
-This spits out a bunch of information, subtracts a linear fit from the input data and writes 'dcf_output.dat' in the current working directory.
+This spits out a bunch of information, subtracts a linear fit from the input data and writes 'dcf_output.csv' in the current working directory.
 
 ##Reference
 
