@@ -27,8 +27,8 @@ $ python dcf.py -h
 
 When calling dcf.py you **must** specify five pieces of information on the commands line:
 
-* path/time_series1.dat : first time series file
-* path/time_series2.dat : second time series file
+* path/time_series1.csv : first time series file
+* path/time_series2.csv : second time series file
 * lag_range_low : low end of the range to be explored
 * lag_range_high : high end of the range to be explored
 * lag_bin_width : width of lag bin, dt
@@ -60,24 +60,24 @@ Obviously, if you choose to run dcf.py and the only optional flag you raise is '
 
 ##Example
 
-Included in this repo is example data, example/ts1.dat and example/ts2.dat. It's supposed to represent realistic data you might encounter. Let's say, both time series are taken from mysterious power law processes. You've told one of your grad students to take readings every 6 hours for a year - big mistake. Not only have they failed taking readings exactly every 6 hours, it seems like they've taken the weekend off and they disappeared for two weeks in the summer leaving a massive gap. The resulting data is unevenly sampled, has regular short term gaps and a single large long-term gap.
+Included in this repo is example data, example/ts1.csv and example/ts2.csv. It's supposed to represent realistic data you might encounter. Let's say, both time series are taken from mysterious power law processes. You've told one of your grad students to take readings every 6 hours for a year - big mistake. Not only have they failed taking readings exactly every 6 hours, it seems like they've taken the weekend off and they disappeared for two weeks in the summer leaving a massive gap. The resulting data is unevenly sampled, has regular short term gaps and a single large long-term gap.
 
 In this case you might be able to interpolate the data to correct for uneven sampling, however, that becomes problematic for the regular short term gaps and downright negligent for the large gap. This is an example of commonly encountered data where a CCF, interpolated CCF or even computing a cross spectrum using a FFT or DFT will fail. Luckily the DCF can handle this.
 
 To search for correlation using dcf.py
 
 `
-$ python dcf.py example/ts1.dat example/ts2.dat -200 200 3.5
+$ python dcf.py example/ts1.csv example/ts2.csv -200 200 3.5
 `
 
-This command attempts to correlate ts1.dat and ts2.dat over a time range of +/- 200 days with a bin width of 3.5 days. Try it. See that peak at +42 days, that's a correlation.
+This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 200 days with a bin width of 3.5 days. Try it. See that peak at +42 days, that's a correlation.
 
 **The reported correlation relates to the first time series. That is, how the first time series should be shifted to match the second, ie: ts2 = ts1 - correlation. Positive correlation is ts1 *leading* ts2, negative correlation is ts1 *lagging* ts2.**
 
 Want more information? Maybe there is a linear trend in the data you want to get rid of and you'd like an output file as well:
 
 `
-$ python dcf.py example/ts1.dat example/ts2.dat -200 200 3.5 -v -p=1 -o
+$ python dcf.py example/ts1.csv example/ts2.csv -200 200 3.5 -v -p=1 -o
 `
 
 This spits out a bunch of information, subtracts a linear fit from the input data and writes 'dcf_output.csv' in the current working directory.
