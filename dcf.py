@@ -39,7 +39,7 @@ def tsdtrnd(ts, vrbs, plyft):
             print("Scipy not installed, try - pip install scipy")
             import sys
             sys.exit()
- 
+
         lnfnc = lambda x, a, b: a*x + b
         p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
         ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1])
@@ -65,7 +65,7 @@ def tsdtrnd(ts, vrbs, plyft):
             print("a:", p0[0])
             print("b:", p0[1])
             print("c:", p0[2])
-    
+
     return ts
 
 '''
@@ -110,8 +110,8 @@ def chck_tserr(ts):
 
 def get_timeseries(infile1, infile2, vrbs, plyft):
 
-    ts1_in = np.loadtxt(infile1, comments='#')
-    ts2_in = np.loadtxt(infile2, comments='#')
+    ts1_in = np.loadtxt(infile1, comments='#', delimiter=',')
+    ts2_in = np.loadtxt(infile2, comments='#', delimiter=',')
 
     ts1 = chck_tserr(ts1_in)
     ts2 = chck_tserr(ts2_in)
@@ -173,7 +173,7 @@ def gdcf(ts1, ts2, t, dt):
     dcferr = np.zeros(t.shape[0])
     n = np.zeros(t.shape[0])
 
-    dst = np.empty((ts1.shape[0], ts2.shape[0])) 
+    dst = np.empty((ts1.shape[0], ts2.shape[0]))
     for i in range(ts1.shape[0]):
         for j in range(ts2.shape[0]):
             dst[i,j] = ts2[j,0] - ts1[i,0]
@@ -343,8 +343,9 @@ if OPTS.verbose:
 
 if OPTS.output:
 
-    print("Writing DCF out file <dcf_output.dat>")
-    np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)), fmt="%.6f")
+    print("Writing DCF out file dcf_output.csv")
+    np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)), fmt="%.6f", \
+                delimiter=',')
 
 '''
     PLOT RESULTS
@@ -367,4 +368,3 @@ if OPTS.noplot:
     plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
     plt.xlim(OPTS.lgl[0], OPTS.lgh[0])
     plt.show()
-
