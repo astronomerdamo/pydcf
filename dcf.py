@@ -1,12 +1,19 @@
 '''
     A simple implementation of the discrete correlation function (DCF)
+    Author: Damien Robertson - robertsondamien@gmail.com
 
     Usage:
       $ python dcf.py -h for help and basic instruction
 
 '''
+from __future__ import print_function
 
-import numpy as np
+try:
+    import numpy as np
+except ImportError:
+    print("Numpy not installed, try - pip install numpy")
+    import sys
+    sys.exit()
 
 '''
     Subroutine - tsdtrnd
@@ -17,30 +24,48 @@ import numpy as np
 '''
 
 def tsdtrnd(ts, vrbs, plyft):
+
     if plyft == 0:
         ts_mean = np.mean(ts[:,1])
         ts[:,1] = ts[:,1] - ts_mean
         if vrbs:
-            print "Mean subtraction: %.4e" %ts_mean
+            print("Mean subtraction: %.4e" %ts_mean)
+
     elif plyft == 1:
-        from scipy.optimize import curve_fit
+
+        try:
+            from scipy.optimize import curve_fit
+        except ImportError:
+            print("Scipy not installed, try - pip install scipy")
+            import sys
+            sys.exit()
+ 
         lnfnc = lambda x, a, b: a*x + b
         p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
         ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1])
         if vrbs:
-            print "Linear De-trend Coefficients"
-            print "a:", p0[0]
-            print "b:", p0[1]
+            print("Linear De-trend Coefficients [a*x + b]")
+            print("a:", p0[0])
+            print("b:", p0[1])
+
     else:
-        from scipy.optimize import curve_fit
+
+        try:
+            from scipy.optimize import curve_fit
+        except ImportError:
+            print("Scipy not installed, try - pip install scipy")
+            import sys
+            sys.exit()
+
         lnfnc = lambda x, a, b, c: a*x**2.0 + b*x + c
         p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
         ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1], p0[2])
         if vrbs:
-            print "Quadratic De-trend Coefficients"
-            print "a:", p0[0]
-            print "b:", p0[1]
-            print "c:", p0[2]
+            print("Quadratic De-trend Coefficients [a*x**2 + b*x + c]")
+            print("a:", p0[0])
+            print("b:", p0[1])
+            print("c:", p0[2])
+    
     return ts
 
 '''
@@ -49,9 +74,11 @@ def tsdtrnd(ts, vrbs, plyft):
 '''
 
 def set_unitytime(ts1, ts2):
+
     unitytime = min(np.min(ts1[:,0]), np.min(ts2[:,0]))
     ts1[:,0] = ts1[:,0] - unitytime
     ts2[:,0] = ts2[:,0] - unitytime
+
     return ts1, ts2
 
 '''
@@ -62,12 +89,17 @@ def set_unitytime(ts1, ts2):
 '''
 
 def chck_tserr(ts):
+
     assert ((ts.shape[1] == 2) or (ts.shape[1] == 3)), "TS SHAPE ERROR"
+
     if ts.shape[1] == 2:
         ts_fill = np.zeros((ts.shape[0], 3))
         ts_fill[:,0:2] = ts[:,0:2]
+
         return ts_fill
+
     else:
+
         return ts
 
 '''
@@ -77,6 +109,7 @@ def chck_tserr(ts):
 '''
 
 def get_timeseries(infile1, infile2, vrbs, plyft):
+
     ts1_in = np.loadtxt(infile1, comments='#')
     ts2_in = np.loadtxt(infile2, comments='#')
 
@@ -86,6 +119,7 @@ def get_timeseries(infile1, infile2, vrbs, plyft):
     ts1, ts2 = set_unitytime(ts1, ts2)
     ts1 = tsdtrnd(ts1, vrbs, plyft)
     ts2 = tsdtrnd(ts2, vrbs, plyft)
+
     return ts1, ts2
 
 '''
@@ -94,6 +128,7 @@ def get_timeseries(infile1, infile2, vrbs, plyft):
 '''
 
 def sdcf(ts1, ts2, t, dt):
+
     dcf = np.zeros(t.shape[0])
     dcferr = np.zeros(t.shape[0])
     n = np.zeros(t.shape[0])
@@ -119,6 +154,7 @@ def sdcf(ts1, ts2, t, dt):
 
         dcf[k] = np.sum(dcfs) / float(n[k])
         dcferr[k] = np.sqrt(np.sum((dcfs - dcf[k])**2)) / float(n[k] - 1)
+
     return dcf, dcferr
 
 '''
@@ -127,6 +163,7 @@ def sdcf(ts1, ts2, t, dt):
 '''
 
 def gdcf(ts1, ts2, t, dt):
+
     h = dt/4.0
     gkrn = lambda x: np.exp(-1.0 * np.abs(x)**2 / (2.0 * h**2)) \
            / np.sqrt(2.0 * np.pi * h)
@@ -136,8 +173,7 @@ def gdcf(ts1, ts2, t, dt):
     dcferr = np.zeros(t.shape[0])
     n = np.zeros(t.shape[0])
 
-    dst = np.empty((ts1.shape[0], ts2.shape[0]))
-    #n = ts1.shape[0] * ts2.shape[0]
+    dst = np.empty((ts1.shape[0], ts2.shape[0])) 
     for i in range(ts1.shape[0]):
         for j in range(ts2.shape[0]):
             dst[i,j] = ts2[j,0] - ts1[i,0]
@@ -156,6 +192,7 @@ def gdcf(ts1, ts2, t, dt):
         dcfs = (ts2[ts2idx,1] - mts2) * (ts1[ts1idx,1] - mts1) / dcfdnm
         dcf[k] = np.sum(dcfs) / float(n[k])
         dcferr[k] = np.sqrt(np.sum((dcfs - dcf[k])**2)) / float(n[k] - 1)
+
     return dcf, dcferr
 
 '''
@@ -176,14 +213,18 @@ INPUT = argparse.ArgumentParser(description='DCF USER PARAMETERS')
         lag_bin_width    - float
 '''
 
-INPUT.add_argument('infile1', metavar='time_series1', type=file, nargs=1,
+INPUT.add_argument('infile1', metavar='time_series1', type=open, nargs=1,
                    help='Time Series 1')
-INPUT.add_argument('infile2', metavar='time_series2', type=file, nargs=1,
+
+INPUT.add_argument('infile2', metavar='time_series2', type=open, nargs=1,
                    help='Time Series 2')
+
 INPUT.add_argument('lgl', metavar='lag_range_low', type=float, nargs=1,
                    help='Lag range low')
+
 INPUT.add_argument('lgh', metavar='lag_range_high', type=float, nargs=1,
                    help='Lag range high')
+
 INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
                    help='Width of lag bin, dt')
 
@@ -199,13 +240,17 @@ INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
 INPUT.add_argument('-w', dest='weight', type=str, nargs=1,
                    default=['slot'], choices=['slot', 'gauss'],
                    required=False, help='Lag bin weighting scheme')
+
 INPUT.add_argument('-p', dest='polyfit', type=int, nargs=1,
                    default=[0], choices=[0, 1, 2],
                    required=False, help='Polynomial fit subtraction')
+
 INPUT.add_argument('-np', '--no-plot', dest='noplot', action='store_false',
                    help='Do not produce plot')
+
 INPUT.add_argument('-o', '--output', dest='output', action='store_true',
                    help='Write output file')
+
 INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                    help='Show all steps')
 
@@ -223,16 +268,16 @@ OPTS = INPUT.parse_args()
       number of lag bins. See README for more details.
 '''
 
-#assert abs(OPTS.lgl[0]) == abs(OPTS.lgh[0]), "INPUT ERROR - LAG RANGE"
 assert OPTS.lgl[0] < OPTS.lgh[0], "INPUT ERROR - LAG RANGE"
 
 if OPTS.verbose:
-    print "\nPYTHON SCRIPT: dcf"
-    print
-    print "INPUT TIMESERIES 1:", OPTS.infile1[0]
-    print "INPUT TIMESERIES 2:", OPTS.infile2[0]
-    print "LAG RANGE PROBED  :", OPTS.lgl[0], " : ", OPTS.lgh[0]
-    print "LAG BIN WIDTH     :", OPTS.dt[0]
+
+    print("\nPYTHON SCRIPT: dcf3")
+    print()
+    print("INPUT TIMESERIES 1:", OPTS.infile1[0].name)
+    print("INPUT TIMESERIES 2:", OPTS.infile2[0].name)
+    print("LAG RANGE PROBED  :", OPTS.lgl[0], " : ", OPTS.lgh[0])
+    print("LAG BIN WIDTH     :", OPTS.dt[0])
 
 '''
     TIME SERIES PREPARATION
@@ -257,7 +302,9 @@ if OPTS.verbose:
       default setting, 0, as is. It won't change your data.
 '''
 if OPTS.verbose:
-    print "\nTime series preparation"
+
+    print("\nTime series preparation")
+
 TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose, \
                           OPTS.polyfit[0])
 
@@ -276,19 +323,27 @@ N = np.around((OPTS.lgh[0] - OPTS.lgl[0]) / float(DT))
 T = np.linspace(OPTS.lgl[0]+(DT/2.0), OPTS.lgh[0]-(DT/2.0), N)
 
 if OPTS.weight[0] == 'slot':
+
     if OPTS.verbose:
-        print "\nDCF INITIATED USING SLOT WEIGHTING"
+
+        print("\nDCF INITIATED USING SLOT WEIGHTING")
+
     DCF, DCFERR = sdcf(TS1, TS2, T, DT)
 else:
+
     if OPTS.verbose:
-        print "\nDCF INITIATED USING GAUSSIAN WEIGHTING"
+
+        print("\nDCF INITIATED USING GAUSSIAN WEIGHTING")
+
     DCF, DCFERR = gdcf(TS1, TS2, T, DT)
 
 if OPTS.verbose:
-    print "DCF COMPLETE"
+
+    print("DCF COMPLETE")
 
 if OPTS.output:
-    print "Writing DCF out file <dcf_output.dat>"
+
+    print("Writing DCF out file <dcf_output.dat>")
     np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)), fmt="%.6f")
 
 '''
@@ -300,8 +355,16 @@ if OPTS.output:
 '''
 
 if OPTS.noplot:
-    import matplotlib.pyplot as plt
+
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("Matplotlib not installed, try - pip install matplotlib")
+        import sys
+        sys.exit()
+
     plt.figure(0)
     plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
     plt.xlim(OPTS.lgl[0], OPTS.lgh[0])
     plt.show()
+
