@@ -62,25 +62,29 @@ Obviously, if you choose to run dcf.py and the only optional flag you raise is '
 
 Included in this repo is example data, example/ts1.csv and example/ts2.csv. It's supposed to represent realistic data you might encounter. Let's say, both time series are taken from mysterious power law processes. You've told one of your grad students to take readings every 6 hours for a year - big mistake. Not only have they failed taking readings exactly every 6 hours, it seems like they've taken the weekend off and they disappeared for two weeks in the summer leaving a massive gap. The resulting data is unevenly sampled, has regular short term gaps and a single large long-term gap.
 
+![Poorly sampled time series with horrendous gap](images/ts.png)
+
 In this case you might be able to interpolate the data to correct for uneven sampling, however, that becomes problematic for the regular short term gaps and downright negligent for the large gap. This is an example of commonly encountered data where a CCF, interpolated CCF or even computing a cross spectrum using a FFT or DFT will fail. Luckily the DCF can handle this.
 
 To search for correlation using dcf.py
 
 `
-$ python dcf.py example/ts1.csv example/ts2.csv -200 200 3.5
+$ python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8
 `
 
-This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 200 days with a bin width of 3.5 days. Try it. See that peak at +42 days, that's a correlation.
+This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 200 days with a bin width of 0.8 days. Try it. See that peak at +42 days, that's a correlation.
+
+![Resulting DCF with peak](images/dcf.png)
 
 **The reported correlation relates to the first time series. That is, how the first time series should be shifted to match the second, ie: ts2 = ts1 - correlation. Positive correlation is ts1 *leading* ts2, negative correlation is ts1 *lagging* ts2.**
 
-Want more information? Maybe there is a linear trend in the data you want to get rid of and you'd like an output file as well:
+Want more information at every step, maybe there is a linear trend in the data you want to subtract and you'd like an output file as well:
 
 `
 $ python dcf.py example/ts1.csv example/ts2.csv -200 200 3.5 -v -p=1 -o
 `
 
-This spits out a bunch of information, subtracts a linear fit from the input data and writes 'dcf_output.csv' in the current working directory.
+This spits out a bunch of information (-v for verbose mode), subtracts a linear fit (-p=1 for first order polynomial) from the input data and writes 'dcf_output.csv' in the current working directory (-o for output file).
 
 ##Reference
 
