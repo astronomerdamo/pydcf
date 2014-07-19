@@ -8,6 +8,8 @@
 '''
 from __future__ import print_function
 
+print(__doc__)
+
 try:
     import numpy as np
 except ImportError:
@@ -15,15 +17,19 @@ except ImportError:
     import sys
     sys.exit()
 
-'''
-    Subroutine - tsdtrnd
-      Time series detrend using the user chosen polynomial order. Subroutine
-      fits a ploynomial to the time series data and subtracts.
-
-    Requires scipy.optimize (scipy) to be installed.
-'''
+#
+#   Subroutines
+#
 
 def tsdtrnd(ts, vrbs, plyft):
+
+    '''
+        Subroutine - tsdtrnd
+          Time series detrend using the user chosen polynomial order. Subroutine
+          fits a ploynomial to the time series data and subtracts.
+
+        Requires scipy.optimize (scipy) to be installed.
+    '''
 
     if plyft == 0:
         ts_mean = np.mean(ts[:,1])
@@ -68,12 +74,12 @@ def tsdtrnd(ts, vrbs, plyft):
 
     return ts
 
-'''
-    Subroutine - set_unitytime
-      Simply shifts both time series so that one starts at zero.
-'''
-
 def set_unitytime(ts1, ts2):
+
+    '''
+        Subroutine - set_unitytime
+          Simply shifts both time series so that one starts at zero.
+    '''
 
     unitytime = min(np.min(ts1[:,0]), np.min(ts2[:,0]))
     ts1[:,0] = ts1[:,0] - unitytime
@@ -81,14 +87,14 @@ def set_unitytime(ts1, ts2):
 
     return ts1, ts2
 
-'''
-    Subroutine - chck_tserr
-      Makes sure user has entered a properly formatted ts file.
-      Checks to see if input time series has a measurement error column - third
-      column of input file.
-'''
-
 def chck_tserr(ts):
+
+    '''
+        Subroutine - chck_tserr
+          Makes sure user has entered a properly formatted ts file.
+          Checks to see if input time series has a measurement error column - third
+          column of input file.
+    '''
 
     assert ((ts.shape[1] == 2) or (ts.shape[1] == 3)), "TS SHAPE ERROR"
 
@@ -102,13 +108,13 @@ def chck_tserr(ts):
 
         return ts
 
-'''
-    Subroutine - get_timeseries
-      Takes the user specified filenames and runs tsdtrnd and set_unitytime.
-      Returns the prepared time series for DCF.
-'''
-
 def get_timeseries(infile1, infile2, vrbs, plyft):
+
+    '''
+        Subroutine - get_timeseries
+          Takes the user specified filenames and runs tsdtrnd and set_unitytime.
+          Returns the prepared time series for DCF.
+    '''
 
     ts1_in = np.loadtxt(infile1, comments='#', delimiter=',')
     ts2_in = np.loadtxt(infile2, comments='#', delimiter=',')
@@ -122,12 +128,12 @@ def get_timeseries(infile1, infile2, vrbs, plyft):
 
     return ts1, ts2
 
-'''
-    Subroutine - sdcf
-      DCF algorithm with slot weighting
-'''
-
 def sdcf(ts1, ts2, t, dt):
+
+    '''
+        Subroutine - sdcf
+          DCF algorithm with slot weighting
+    '''
 
     dcf = np.zeros(t.shape[0])
     dcferr = np.zeros(t.shape[0])
@@ -157,12 +163,12 @@ def sdcf(ts1, ts2, t, dt):
 
     return dcf, dcferr
 
-'''
-    Subroutine - gdcf
-      DCF algorithm with gaussian weighting
-'''
-
 def gdcf(ts1, ts2, t, dt):
+
+    '''
+        Subroutine - gdcf
+          DCF algorithm with gaussian weighting
+    '''
 
     h = dt/4.0
     gkrn = lambda x: np.exp(-1.0 * np.abs(x)**2 / (2.0 * h**2)) \
@@ -195,23 +201,23 @@ def gdcf(ts1, ts2, t, dt):
 
     return dcf, dcferr
 
-'''
-    MAIN PROGRAM
-'''
+#
+#    MAIN PROGRAM
+#
 
 import argparse
 
 INPUT = argparse.ArgumentParser(description='DCF USER PARAMETERS')
 
-'''
-    USER PARAMETER INPUT
-      STANDARD PARAMETERS (REQUIRED):
-        time_series1.dat - path/filename
-        time_series2.dat - path/filename
-        lag_range_low    - float
-        lag_range_high   - float
-        lag_bin_width    - float
-'''
+#
+#    USER PARAMETER INPUT
+#      STANDARD PARAMETERS (REQUIRED):
+#        time_series1.dat - path/filename
+#        time_series2.dat - path/filename
+#        lag_range_low    - float
+#        lag_range_high   - float
+#        lag_bin_width    - float
+#
 
 INPUT.add_argument('infile1', metavar='time_series1', type=open, nargs=1,
                    help='Time Series 1')
@@ -228,14 +234,14 @@ INPUT.add_argument('lgh', metavar='lag_range_high', type=float, nargs=1,
 INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
                    help='Width of lag bin, dt')
 
-'''
-    USER PARAMETER INPUT
-      OPTIONAL PARAMETERS:
-        weight   = 'slot' or 'gauss'
-        polyfit  = 0, 1, 2
-        plot     = True or False
-        verbose  = True or False
-'''
+#
+#   USER PARAMETER INPUT
+#     OPTIONAL PARAMETERS:
+#       weight   = 'slot' or 'gauss'
+#       polyfit  = 0, 1, 2
+#       plot     = True or False
+#       verbose  = True or False
+#
 
 INPUT.add_argument('-w', dest='weight', type=str, nargs=1,
                    default=['slot'], choices=['slot', 'gauss'],
@@ -256,17 +262,17 @@ INPUT.add_argument('-v', '--verbose', dest='verbose', action='store_true',
 
 OPTS = INPUT.parse_args()
 
-'''
-    USER PARAMETER CHECK AND READOUT
-      This section will fail if:
-        Parameters 'lag_range_low' and 'lag_range_high' are not symmetric
-            about zero, ie: |lag_range_low| == |lag_range_high|
-        Parameter 'lag_range_low' is greater than 'lag_range_high'.
-
-    **PITFALL**
-      There is no check to make sure the user enters a sensible
-      number of lag bins. See README for more details.
-'''
+#
+#   USER PARAMETER CHECK AND READOUT
+#     This section will fail if:
+#       Parameters 'lag_range_low' and 'lag_range_high' are not symmetric
+#           about zero, ie: |lag_range_low| == |lag_range_high|
+#       Parameter 'lag_range_low' is greater than 'lag_range_high'.
+#
+#   **PITFALL**
+#     There is no check to make sure the user enters a sensible
+#     number of lag bins. See README for more details.
+#
 
 assert OPTS.lgl[0] < OPTS.lgh[0], "INPUT ERROR - LAG RANGE"
 
@@ -279,28 +285,29 @@ if OPTS.verbose:
     print("LAG RANGE PROBED  :", OPTS.lgl[0], " : ", OPTS.lgh[0])
     print("LAG BIN WIDTH     :", OPTS.dt[0])
 
-'''
-    TIME SERIES PREPARATION
-      This section subtracts a n'th order polynomial from both input time
-      series prior to the DCF. The user may choose:
-        0'th order polynomial - subtracting the mean or zeroing the data.
-        1'st order polynomial - subtracting a linear fit
-        2'nd order polynomial - subtracting a quadratic fit
-      The default setting is subtracting a 0'th order polynomial (the mean).
-      This simply zeros the data and doesn't change any intrinsic qualities.
+#
+#   TIME SERIES PREPARATION
+#     This section subtracts a n'th order polynomial from both input time
+#     series prior to the DCF. The user may choose:
+#       0'th order polynomial - subtracting the mean or zeroing the data.
+#       1'st order polynomial - subtracting a linear fit
+#       2'nd order polynomial - subtracting a quadratic fit
+#     The default setting is subtracting a 0'th order polynomial (the mean).
+#     This simply zeros the data and doesn't change any intrinsic qualities.
+#
+#   **PITFALL**
+#     Just because you can subtract a n'th order polynomial doesn't mean you
+#     should. The program doesn't monitor or tell you a subtraction is
+#     harmful or unnecessary. If you don't know why you are subtracting a
+#     1'st or 2'nd order polynomial, don't, leave the default subtraction in
+#     place. Go research non-stationary time series and filtering low
+#     frequency noise before trying again.
+#
+#   **PITFALL 2**
+#     If you have subtracted your own fits from the time series, leave the
+#     default setting, 0, as is. It won't change your data.
+#
 
-    **PITFALL**
-      Just because you can subtract a n'th order polynomial doesn't mean you
-      should. The program doesn't monitor or tell you a subtraction is
-      harmful or unnecessary. If you don't know why you are subtracting a
-      1'st or 2'nd order polynomial, don't, leave the default subtraction in
-      place. Go research non-stationary time series and filtering low
-      frequency noise before trying again.
-
-    **PITFALL 2**
-      If you have subtracted your own fits from the time series, leave the
-      default setting, 0, as is. It won't change your data.
-'''
 if OPTS.verbose:
 
     print("\nTime series preparation")
@@ -308,15 +315,15 @@ if OPTS.verbose:
 TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose, \
                           OPTS.polyfit[0])
 
-'''
-    DCF
-      This section earns the paycheck for the entire program - runs the DCF
-      algorithm. The user main choose the rectangular 'slot' weighting or
-      the gaussian 'gauss' weighting. See README for details on pair weighting.
-
-    The regular weighting scheme is 'slot' and also default. If you are
-    unsure why you might pick 'gauss' - don't.
-'''
+#
+#   DCF
+#     This section earns the paycheck for the entire program - runs the DCF
+#     algorithm. The user main choose the rectangular 'slot' weighting or
+#     the gaussian 'gauss' weighting. See README for details on pair weighting.
+#
+#   The regular weighting scheme is 'slot' and also default. If you are
+#   unsure why you might pick 'gauss' - don't.
+#
 
 DT = OPTS.dt[0]
 N = np.around((OPTS.lgh[0] - OPTS.lgl[0]) / float(DT))
@@ -347,13 +354,13 @@ if OPTS.output:
     np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)), fmt="%.6f", \
                 delimiter=',')
 
-'''
-    PLOT RESULTS
-      No brainer - plots the results. If the user wishes to suppress the plot
-      one should use the -np or --no-plot flag on the command line.
-
-    Requires python module matplotlib.
-'''
+#
+#   PLOT RESULTS
+#     No brainer - plots the results. If the user wishes to suppress the plot
+#     one should use the -np or --no-plot flag on the command line.
+#
+#   Requires python module matplotlib.
+#
 
 if OPTS.noplot:
 
@@ -366,5 +373,11 @@ if OPTS.noplot:
 
     plt.figure(0)
     plt.errorbar(T, DCF, DCFERR, color='k', ls='-', capsize=0)
+    plt.xlabel("Lag")
+    plt.ylabel("Correlation Coefficient")
     plt.xlim(OPTS.lgl[0], OPTS.lgh[0])
     plt.show()
+
+#
+#   END
+#
