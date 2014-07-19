@@ -241,6 +241,7 @@ INPUT.add_argument('dt', metavar='lag_bin_width', type=float, nargs=1,
 #       polyfit  = 0, 1, 2
 #       plot     = True or False
 #       verbose  = True or False
+#       output   = True of False
 #
 
 INPUT.add_argument('-w', dest='weight', type=str, nargs=1,
@@ -348,10 +349,14 @@ if OPTS.verbose:
 
     print("DCF COMPLETE")
 
+#
+#   CHECK IF OUTPUT WRITE IS TRUE
+#
+
 if OPTS.output:
 
     print("Writing DCF out file dcf_output.csv")
-    np.savetxt('dcf_output.dat', np.transpose((T, DCF, DCFERR)), fmt="%.6f", \
+    np.savetxt('dcf_output.csv', np.transpose((T, DCF, DCFERR)), fmt="%.6f", \
                 delimiter=',')
 
 #
