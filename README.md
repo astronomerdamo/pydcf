@@ -33,11 +33,11 @@ When calling dcf.py you **must** specify five pieces of information on the comma
 * lag_range_high : high end of the range to be explored
 * lag_bin_width : width of lag bin, dt
 
-**Note:** The input time series files must be a Nx2 or Nx3, comma delimited (.csv) file. That is, N rows with 2 or 3 columns with spaces or tabs separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
+**Note:** The input time series files must be a Nx2 or Nx3, comma delimited (.csv) file. That is, N rows with 2 or 3 columns with commas separating the columns, (t y [dy]) - note measurement error is optional in the input file. Comment lines in the input files must be prefaced with a hastag, #.
 
-The choice of lag range is really up to you, the only thing dcf.py requires is that lag_range_low is less than lag_range_high. Specify the lag range in the same units as your data, for example if you have a time series which has units of seconds the then use seconds for the lag range.
+The choice of lag range is really up to you, the only thing dcf.py requires is that lag_range_low is less than lag_range_high. Specify the lag range in the same units as your data, for example if you have a time series which has units of seconds then use seconds for the lag range.
 
-The choice for lag bin width is more subtle. It's worth mentioning that the DCF doesn't interpolate your data - it interpolates the correlation coefficient according to how you tune the bin width. However, this does not mean you should choose the finest bin resolution you can. If resolution is finer than the average resolution of your data the program breaks. Choose a bin width that is too coarse and you may miss important details.
+The choice for lag bin width is more subtle. It's worth mentioning that the DCF doesn't interpolate your data - it interpolates the correlation coefficient according to how you tune the bin width. However, this does not mean you should choose the finest bin resolution you can. If resolution is finer than the average resolution of your data the program may break (divide by zero). Choose a bin width that is too coarse and you may miss important details. My next ToDo is to implement some kind of automatic bin width choosing algorithm.
 
 ####General Guidelines for Choosing Bin Width
 
@@ -72,7 +72,7 @@ To search for correlation using dcf.py
 $ python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8
 `
 
-This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 200 days with a bin width of 0.8 days. Try it. See that peak at +42 days, that's a correlation.
+This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 200 days with a bin width of 0.8 day. Try it. See that peak at +42 days, that's a correlation.
 
 ![Resulting DCF with peak](images/dcf.png)
 
@@ -81,7 +81,7 @@ This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 
 Want more information at every step, maybe there is a linear trend in the data you want to subtract and you'd like an output file as well:
 
 `
-$ python dcf.py example/ts1.csv example/ts2.csv -200 200 3.5 -v -p=1 -o
+$ python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8 -v -p=1 -o
 `
 
 This spits out a bunch of information (-v for verbose mode), subtracts a linear fit (-p=1 for first order polynomial) from the input data and writes 'dcf_output.csv' in the current working directory (-o for output file).
