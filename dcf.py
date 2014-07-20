@@ -355,9 +355,9 @@ if OPTS.verbose:
 
 if OPTS.output:
 
-    print("Writing DCF out file dcf_output.csv")
+    print("Writing DCF output file to: dcf_output.csv")
     np.savetxt('dcf_output.csv', np.transpose((T, DCF, DCFERR)), fmt="%.6f", \
-                delimiter=',')
+                header="LAG,DCF,DCF_ERROR", delimiter=',')
 
 #
 #   PLOT RESULTS
