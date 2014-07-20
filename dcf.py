@@ -272,7 +272,7 @@ OPTS = INPUT.parse_args()
 #
 #   **PITFALL**
 #     There is no check to make sure the user enters a sensible
-#     number of lag bins. See README for more details.
+#     lag bin width. See README for more details.
 #
 
 assert OPTS.lgl[0] < OPTS.lgh[0], "INPUT ERROR - LAG RANGE"
