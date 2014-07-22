@@ -6,7 +6,8 @@
       $ python dcf.py -h for help and basic instruction
 
 '''
-from __future__ import print_function
+
+from __future__ import print_function, division
 
 print(__doc__)
 
