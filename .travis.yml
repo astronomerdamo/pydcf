@@ -9,4 +9,5 @@ install:
   - "pip install numpy"
   - "pip install scipy"
   - "pip install matplotlib"
-script: nosetests
+script: 
+  - "python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8 -np"
