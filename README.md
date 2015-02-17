@@ -2,7 +2,7 @@
 
 ##Requirements
 
-* > Python 2.6 or > Python 3.0
+* Python 2.7, 3.3, 3.4
 * Numpy
 * Scipy
 * Matplotlib
