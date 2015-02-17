@@ -19,7 +19,6 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION numpy scipy matplotlib
   - source activate test-environment
 script:
-  - python dcf.py example/ts1.csv example/ts2.csv -200.0 200.0 0.8
   - python dcf.py example/ts1.csv example/ts2.csv -200.0 200.0 0.8 -p=1
 notifications: 
   email: false
