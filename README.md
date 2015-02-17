@@ -1,4 +1,4 @@
-#dcf.py : A Python Implementation of the Discrete Correlation Function (DCF)
+#pyDCF
 
 ##Requirements
 
