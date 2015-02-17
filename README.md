@@ -1,4 +1,4 @@
-#pyDCF
+#pyDCF [![Build Status](https://travis-ci.org/astronomerdamo/pydcf.svg?branch=master)](https://travis-ci.org/astronomerdamo/pydcf)
 
 ##Requirements
 
