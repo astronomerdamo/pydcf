@@ -1,5 +1,7 @@
 #pyDCF [![Build Status](https://travis-ci.org/astronomerdamo/pydcf.svg?branch=master)](https://travis-ci.org/astronomerdamo/pydcf)
 
+A Python cross correlation tool for unevenly sampled time series.
+
 ##Requirements
 
 * Python 2.7, 3.3, 3.4
