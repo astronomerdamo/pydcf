@@ -16,7 +16,7 @@ The Discrete Correlation Function (DCF) was developed by Edelson and Krolik, 198
 ##Installation
 
 `
-$ git clone https://github.com/astronomerdamo/pydcf.git
+git clone https://github.com/astronomerdamo/pydcf.git
 `
 
 ##Usage
@@ -24,7 +24,7 @@ $ git clone https://github.com/astronomerdamo/pydcf.git
 For complete usage:
 
 `
-$ python dcf.py -h
+python dcf.py -h
 `
 
 When calling dcf.py you **must** specify five pieces of information on the commands line:
@@ -71,7 +71,7 @@ In this case you might be able to interpolate the data to correct for uneven sam
 To search for correlation using dcf.py
 
 `
-$ python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8
+python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8
 `
 
 This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 200 days with a bin width of 0.8 day. Try it. See that peak at +42 days, that's a correlation.
@@ -83,7 +83,7 @@ This command attempts to correlate ts1.csv and ts2.csv over a time range of +/- 
 Want more information at every step, maybe there is a linear trend in the data you want to subtract and you'd like an output file as well:
 
 `
-$ python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8 -v -p=1 -o
+python dcf.py example/ts1.csv example/ts2.csv -200 200 0.8 -v -p=1 -o
 `
 
 This spits out a bunch of information (-v for verbose mode), subtracts a linear fit (-p=1 for first order polynomial) from the input data and writes 'dcf_output.csv' in the current working directory (-o for output file).
