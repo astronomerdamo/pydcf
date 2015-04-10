@@ -33,6 +33,7 @@ def tsdtrnd(ts, vrbs, plyft):
     '''
 
     if plyft == 0:
+
         ts_mean = np.mean(ts[:,1])
         ts[:,1] = ts[:,1] - ts_mean
         if vrbs:
@@ -50,6 +51,7 @@ def tsdtrnd(ts, vrbs, plyft):
         lnfnc = lambda x, a, b: a*x + b
         p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
         ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1])
+
         if vrbs:
             print("Linear De-trend Coefficients [a*x + b]")
             print("a:", p0[0])
@@ -67,6 +69,7 @@ def tsdtrnd(ts, vrbs, plyft):
         lnfnc = lambda x, a, b, c: a*x**2.0 + b*x + c
         p0, c0 = curve_fit(lnfnc, ts[:,0], ts[:,1], sigma=ts[:,2])
         ts[:,1] = ts[:,1] - lnfnc(ts[:,0], p0[0], p0[1], p0[2])
+
         if vrbs:
             print("Quadratic De-trend Coefficients [a*x**2 + b*x + c]")
             print("a:", p0[0])
@@ -300,10 +303,7 @@ if OPTS.verbose:
 #   **PITFALL**
 #     Just because you can subtract a n'th order polynomial doesn't mean you
 #     should. The program doesn't monitor or tell you a subtraction is
-#     harmful or unnecessary. If you don't know why you are subtracting a
-#     1'st or 2'nd order polynomial, don't, leave the default subtraction in
-#     place. Go research non-stationary time series and filtering low
-#     frequency noise before trying again.
+#     harmful or unnecessary. 
 #
 #   **PITFALL 2**
 #     If you have subtracted your own fits from the time series, leave the
@@ -323,8 +323,9 @@ TS1, TS2 = get_timeseries(OPTS.infile1[0], OPTS.infile2[0], OPTS.verbose, \
 #     algorithm. The user main choose the rectangular 'slot' weighting or
 #     the gaussian 'gauss' weighting. See README for details on pair weighting.
 #
-#   The regular weighting scheme is 'slot' and also default. If you are
-#   unsure why you might pick 'gauss' - don't.
+#   The regular weighting scheme is 'slot' and also default. The 'gauss'
+#   weighting assigns higher importance to data found at the centre of
+#   the lag bin.
 #
 
 DT = OPTS.dt[0]
@@ -362,7 +363,7 @@ if OPTS.output:
 
 #
 #   PLOT RESULTS
-#     No brainer - plots the results. If the user wishes to suppress the plot
+#     If the user wishes to suppress the plot
 #     one should use the -np or --no-plot flag on the command line.
 #
 #   Requires python module matplotlib.
@@ -384,6 +385,3 @@ if OPTS.noplot:
     plt.xlim(OPTS.lgl[0], OPTS.lgh[0])
     plt.show()
 
-#
-#   END
-#
