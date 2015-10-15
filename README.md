@@ -111,4 +111,5 @@ This spits out a bunch of information (-v for verbose mode), subtracts a linear 
 ##Reference
 
 Source Paper: [Edelson and Krolik, 1988](http://articles.adsabs.harvard.edu/full/1988ApJ...333..646E)
+
 Published MNRAS: [Robertson, D. et al, 2015](http://arxiv.org/pdf/1507.05201.pdf)
