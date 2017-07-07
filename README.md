@@ -1,27 +1,27 @@
-#pyDCF [![Build Status](https://travis-ci.org/astronomerdamo/pydcf.svg?branch=master)](https://travis-ci.org/astronomerdamo/pydcf)
+# pyDCF [![Build Status](https://travis-ci.org/astronomerdamo/pydcf.svg?branch=master)](https://travis-ci.org/astronomerdamo/pydcf)
 
 A Python cross correlation command line tool for unevenly sampled time series.
 
-##Requirements
+## Requirements
 
 * Python 2.7, 3.4, 3.5
 * Numpy
 * Scipy
 * Matplotlib
 
-##Introduction
+## Introduction
 
 The Discrete Correlation Function (DCF) was developed by Edelson and Krolik, 1988, ApJ, 333, 646 for use on unevenly sampled and/or gapped data.
 Traditional timing analysis, ie: CCF, requires that a time series is sampled evenly in the time domain.
 In many real world applications obtaining perfectly sampled data may be difficult [read: dang near impossible], hence the need for a timing analysis tool designed specifically for such cases.
 
-##Installation
+## Installation
 
 `
 git clone https://github.com/astronomerdamo/pydcf.git
 `
 
-##Usage
+## Usage
 
 For complete usage:
 
@@ -52,7 +52,7 @@ Choose a bin width that is too coarse and you may miss important details.
 
 My next ToDo is to implement some kind of automatic bin width choosing algorithm and reporting it to the user.
 
-####General Guidelines for Choosing Bin Width
+#### General Guidelines for Choosing Bin Width
 
 * Start with a larger bin size and work down to smaller scales as opposed to small first.
 * Never choose a bin width below the average time resolution of your data - I haven't implemented a check for this yet so the onus on you.
@@ -60,7 +60,7 @@ My next ToDo is to implement some kind of automatic bin width choosing algorithm
     * For example, if the worst resolution time series if 5 seconds start with 50 second bin width.
     * Larger bin width could also benefit from a Gaussian weighting scheme to help initially explore the data.
 
-###Additional Settings
+### Additional Settings
 
 Optional arguments may be passed to dcf.py:
 
@@ -72,7 +72,7 @@ Optional arguments may be passed to dcf.py:
 
 Obviously, if you choose to run dcf.py and the only optional flag you raise is '--no-plot', the program will start and finish without you, the user, seeing anything at all or knowing that anything had happened.
 
-##Example
+## Example
 
 Included in this repo is example data, example/ts1.csv and example/ts2.csv. It's supposed to represent realistic data you might encounter.
 Let's say, both time series are taken from mysterious power law processes.
@@ -108,7 +108,7 @@ python dcf.py example/ts1.csv example/ts2.csv -100 100 1.5 -v -w=gauss -p=1 -o
 
 This spits out a bunch of information (-v for verbose mode), subtracts a linear fit (-p=1 for first order polynomial) from the input data, uses a Gaussian weighting for bin pairs (-w=gauss) and writes 'dcf_output.csv' in the current working directory (-o for output file).
 
-##Reference
+## Reference
 
 Source Paper: [Edelson and Krolik, 1988](http://articles.adsabs.harvard.edu/full/1988ApJ...333..646E)
 
