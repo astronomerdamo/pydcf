@@ -13,7 +13,13 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/astronomerdamo/pydcf",
-    packages=setuptools.find_packages(),
+    packages=[
+        'pydcf',
+    ],
+    install_requires=[
+        'numpy',
+        'scipy',
+    ],
     classifiers=[
         "License :: OSI Approved :: MIT License",
         "Development Status :: 1 - Beta",
