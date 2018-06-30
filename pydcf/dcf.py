@@ -7,12 +7,12 @@
 
 """
 
-from pydcf.cli import _build_cli_args
+from pydcf.cli import _build_cli_args, _cli_pipeline
 
 def pydcf_cli():
     print(__doc__)
     opts = _build_cli_args()
-    print(opts)
+    _cli_pipeline(opts)
 
 def pydcf_pac():
     print("derp")

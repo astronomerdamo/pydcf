@@ -94,8 +94,8 @@ def get_timeseries(infile1, infile2, vrbs, plyft):
     ts1_in = _loadtxt(infile1, comments='#', delimiter=',')
     ts2_in = _loadtxt(infile2, comments='#', delimiter=',')
 
-    ts1 = chck_tserr(ts1_in)
-    ts2 = chck_tserr(ts2_in)
+    ts1 = validate_timeseries(ts1_in)
+    ts2 = validate_timeseries(ts2_in)
 
     ts1, ts2 = set_unitytime(ts1, ts2)
     ts1 = tsdtrnd(ts1, vrbs, plyft)
