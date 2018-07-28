@@ -183,9 +183,9 @@ Pipfile.lock
 ### https://raw.github.com/github/gitignore/5db84d2431ce5209d252112fdc377c0f17d5078b/Global/VisualStudioCode.gitignore
 
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
 
 
