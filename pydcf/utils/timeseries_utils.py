@@ -56,7 +56,7 @@ def tsdtrnd(ts, vrbs, plyft):
     elif plyft == 1:
 
         lnfnc = lambda x, a, b: a*x + b
-        p0, c0 = _curve_fit(lnfnc, ts[:, 0], ts[:, 1], sigma=ts[:, 2])
+        p0, _ = _curve_fit(lnfnc, ts[:, 0], ts[:, 1], sigma=ts[:, 2])
         ts[:, 1] = ts[:, 1] - lnfnc(ts[:, 0], p0[0], p0[1])
 
         if vrbs:
@@ -67,7 +67,7 @@ def tsdtrnd(ts, vrbs, plyft):
     else:
 
         lnfnc = lambda x, a, b, c: a*x**2.0 + b*x + c
-        p0, c0 = _curve_fit(lnfnc, ts[:, 0], ts[:, 1], sigma=ts[:, 2])
+        p0, _ = _curve_fit(lnfnc, ts[:, 0], ts[:, 1], sigma=ts[:, 2])
         ts[:, 1] = ts[:, 1] - lnfnc(ts[:, 0], p0[0], p0[1], p0[2])
 
         if vrbs:
