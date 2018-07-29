@@ -59,7 +59,7 @@ def _cli_pipeline(opts):
     assert opts.lgl[0] < opts.lgh[0], "INPUT ERROR - LAG RANGE"
 
     if opts.verbose:
-        print("\nPYTHON SCRIPT: dcf3")
+        print("\nPYTHON SCRIPT: pydcf_cli")
         print()
         print("INPUT TIMESERIES 1:", opts.infile1[0].name)
         print("INPUT TIMESERIES 2:", opts.infile2[0].name)
@@ -87,7 +87,7 @@ def _cli_pipeline(opts):
     #
 
     if opts.verbose:
-        print("\nTime series preparation")
+        print("\nTIME SERIES PREPARATION")
 
     ts1, ts2 = get_timeseries(opts.infile1[0], opts.infile2[0], opts.verbose, opts.polyfit[0])
 

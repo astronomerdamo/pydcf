@@ -93,7 +93,12 @@ def get_timeseries(infile1, infile2, vrbs, plyft):
     ts2 = validate_timeseries(ts2_in)
 
     ts1, ts2 = set_unitytime(ts1, ts2)
+    if vrbs:
+        print("\nDE-TREND TIME SERIES 1")
     ts1 = tsdtrnd(ts1, vrbs, plyft)
+
+    if vrbs:
+        print("\nDE-TREND TIME SERIES 2")
     ts2 = tsdtrnd(ts2, vrbs, plyft)
 
     return ts1, ts2

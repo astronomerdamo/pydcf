@@ -1,5 +1,5 @@
 """
-    A simple implementation of the discrete correlation function (DCF)
+    A Python cross correlation tool for unevenly sampled time series via the discrete correlation function (DCF).
     Author: Damien Robertson - robertsondamien@gmail.com
 
     Usage:
