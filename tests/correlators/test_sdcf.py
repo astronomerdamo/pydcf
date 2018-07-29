@@ -21,21 +21,37 @@ def test_ts():
 
 
 @pytest.fixture
-def test_ts2():
-    return np_array([
-        [21., 1., 0.1],
-        [22., 2., 0.1],
-        [24., 4., 0.1],
-    ])
-
+def test_time_parameters():
+    dt = 2
+    lgl = -7
+    lgh = 7
+    n = around((lgh - lgl) / float(dt))
+    t = linspace(lgl + (dt/2.0), lgh - (dt/2.0), n)
+    return (t, dt)
 
 def test_sdcf(test_ts):
-    # TODO: Build tests for sdcf
-    test_dt = 2
-    test_lgl = -7
-    test_lgh = 7
-    n = around((test_lgh - test_lgl) / float(test_dt))
-    test_t = linspace(test_lgl+(test_dt/2.0), test_lgh-(test_dt/2.0), n)
-    output = sdcf(test_ts, test_ts, test_t, test_dt)
-    import pdb; pdb.set_trace()
-    assert True
+
+    expected_dcf = np_array([
+        0.30172735,
+        -0.62203941,
+        -0.1429063,
+        0.89823009,
+        -0.1429063,
+        -0.62203941,
+        0.30172735,
+    ])
+
+    expected_dcferr = np_array([
+        0.3611922,
+        0.32200669,
+        0.20213337,
+        0.33405463,
+        0.20213337,
+        0.32200669,
+        0.3611922,
+    ])
+    
+    output_dcf, output_dcferr = sdcf(test_ts, test_ts, *test_time_parameters())
+
+    assert all([around(a, decimals=3) == around(b, decimals=3) for a, b in zip(output_dcf, expected_dcf)])
+    assert all([around(a, decimals=3) == around(b, decimals=3) for a, b in zip(output_dcferr, expected_dcferr)])

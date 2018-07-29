@@ -36,4 +36,4 @@ def gdcf(ts1, ts2, t, dt):
         dcf[k] = np.sum(dcfs) / float(n[k])
         dcferr[k] = np.sqrt(np.sum((dcfs - dcf[k])**2)) / float(n[k] - 1)
 
-        return dcf, dcferr
+    return dcf, dcferr
